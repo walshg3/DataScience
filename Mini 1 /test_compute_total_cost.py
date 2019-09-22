@@ -1,4 +1,4 @@
-from compute_total_cost_john_mick import compute_avg_charges as avc
+from compute_total_cost_greg_walsh import compute_avg_charges as avc
 
 def avcp(filename, min_age, max_age, regions):
   import pandas as pd
@@ -70,4 +70,6 @@ tests = [
   run_test("   41-60 Ages SW", "insurance.csv",  41.0, 60.0, "southwest"                               )
 ]
 
-print( "Score: %.2f" % (len([x for x in tests if x is True]) / len(tests) * 100 ))
+print( "Score: %.2f" % (len([x for x in tests if x ]) / len(tests) * 100 ))
+
+
