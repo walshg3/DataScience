@@ -1,0 +1,32 @@
+StudentsPerformance.csv: ASCII text
+WC: 1001    3188   72036 StudentsPerformance.csv
+columns: Gender, Race/Ethnicity, Parental Level of Education, Lunch, Test Preperation on Course, Math Score, Reading Score, Writing Score
+Race/Ethnicity have Grouping A-D 
+cat StudentsPerformance.csv | tr -d "\"" > students1.csv
+cut -d ',' -f 1,3 students1.csv | tr "[a-z]" "[A-Z]" > students2.csv
+cut -d ',' -f 8 students1.csv | tail -n +2 > students3.csv
+paste -s -d'+' students3.csv | bc
+SUM = 68054
+
+students3.csv
+74
+88
+93
+44
+75
+78
+92
+39
+67
+50
+students2.csv
+GENDER,PARENTAL LEVEL OF EDUCATION
+FEMALE,BACHELOR'S DEGREE
+FEMALE,SOME COLLEGE
+FEMALE,MASTER'S DEGREE
+MALE,ASSOCIATE'S DEGREE
+MALE,SOME COLLEGE
+FEMALE,ASSOCIATE'S DEGREE
+FEMALE,SOME COLLEGE
+MALE,SOME COLLEGE
+MALE,HIGH SCHOOL
