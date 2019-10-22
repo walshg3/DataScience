@@ -1,0 +1,49 @@
+Greg Walsh
+Week 4 SUBMISSION
+File 1:
+Sed Helper:
+sed -i 's/original/new/g' file.txt
+____________________________________
+sed '/^$/d' norway.csv > norway1.csv
+sed 's/Meas/Measured/g' norway1.csv > norway2.csv
+sed '/-999/d' norway2.csv > norway3.csv
+sed 's/NA,.9/13.9/g' norway3.csv > norway4.csv
+sed 's/NA,/13.9/g' norway4.csv > norway5.csv
+sed 's/,$//' norway5.csv > norway6.csv
+sed -E 's/([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})/\1-\2-\3/' norway7.csv > norway8.csv
+Measured Point,Vol.,Conc.,Cond. 185,Temp. 185,Cond. 187,Temp. 187
+,ml,mg/l,µS/cm,°C,µS/cm,°C
+0,250.0,0.00,105.8,10.7,105.4,10.7
+1,250.5,19.96,220.7,10.7,220.9,10.6
+2,251.0,39.84,335.8,10.7,334.7,10.6
+3,251.5,59.64,448.4,10.7,447.0,10.6
+4,252.0,79.37,562.2,10.7,560.3,10.6
+5,252.5,99.01,685.4,10.7,683.1,10.6
+Date/Time,Measured Point,Cond. 185,Cond. 187,Temp. 185,Temp. 187
+6-18-2016 10:11:36 AM,0,13.2,13.3,13.9,13.9
+
+File2:
+grep -i "<gml:pos>" faadata.xml | sed 's/<gml:pos>// ; s/<\/gml:pos>//' | head -n 20
+grep -i "<gml:pos>" faadata.xml | sed 's/<gml:pos>// ; s/<\/gml:pos>// ; s/ //g'| head -n 20
+grep -i "<gml:pos>" faadata.xml | sed 's/<gml:pos>// ; s/<\/gml:pos>// ; s/              //g ; s/ /,/g' | head -n 20
+-85.846933,33.596461
+-85.865539,33.583842
+-85.873329,33.576888
+-85.930792,33.534350
+-85.436018,32.621029
+-85.435461,32.607750
+-85.437215,32.509259
+-86.916291,33.319710
+-86.930708,33.309035
+-86.915690,33.319207
+
+File 3:
+
+468 MALE
+2702 FEMALE
+
+grep -o "Male" WDB_Accused.csv | wc -w
+468
+
+grep -o "Female" WDB_Accused.csv | wc -w
+2702
