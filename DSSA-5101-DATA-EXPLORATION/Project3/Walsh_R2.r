@@ -17,7 +17,6 @@ library(sqldf)
 library(ggplot2)
 ## Load DataSet 
 honeybee <- read.csv(file="HoneyBees.csv",sep=",",head=TRUE)
-
 ## Create a basic plot of Yield per Colony against All Neonics
 plot(honeybee$yieldpercol, honeybee$nAllNeonic)
 ## Create a basic histogram of the number of honey producing colonies
@@ -31,7 +30,6 @@ year_factor <- factor(honeybee$year)
 state_factor <- factor(honeybee$state)
 region_factor <- factor(honeybee$Region)
 ## Create a histogram using ggplot() of Total production of honey by State
-## Ask our idiot professor about this tomorrow ##
 ggplot(honeybee, aes(x=honeybee$state, y=honeybee$totalprod)) + geom_histogram(stat = "identity")
 ## Create a bar graph using ggplot() of the Number of colonies by Year
 ggplot(honeybee, aes(x=honeybee$year, y=honeybee$numcol)) + geom_bar(stat = "identity")
@@ -40,7 +38,7 @@ ggplot(honeybee, aes(x=state_factor, y=honeybee$numcol, fill=year_factor)) + geo
 ## Create a line graph using ggplot() with each line representing a different state and indicating the Number of colonies per Year
 ggplot(honeybee, aes(x=honeybee$year, y=honeybee$numcol, group=honeybee$state)) + geom_line(aes(color=state_factor))
 ## Given the data, present a graph that you find interesting. You can use any graphing functions you want (e.g. plot, qplot, ggplot, plot.ly). It should be easy to recognize what you are presenting (thanks to titles, labels, and whatever else it needs). 
-## Question: Which state the most expensive price per pound of honey per year. 
+## Question: Which states have the most agressive change in price per pound of honey per year?
 ggplot(honeybee, aes(x=honeybee$year,y=honeybee$priceperlb)) + geom_line() + facet_wrap(facets = vars(honeybee$state)) + ggtitle("Price per Pound of Honey By State Per Year") + labs(y="Price Per LB", x = "Year")
-
+## Answer NJ ME IL 
        
