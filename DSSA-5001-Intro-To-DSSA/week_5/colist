@@ -1,0 +1,6 @@
+# Greg Walsh
+# 10/22/19
+# Script that outputs a vertical list of all column headers 
+# Usage prompt$ ./colist file.csv
+
+head -n 1 $1 | tr ',' '\n' | cat

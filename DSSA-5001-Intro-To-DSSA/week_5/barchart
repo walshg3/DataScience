@@ -1,0 +1,17 @@
+# Greg Walsh
+# 10/22/19
+# Script outputs a pretty bar graph
+# Useage: prompt$ ./barchart 3 5 7
+
+
+# Create Variable for the list of '|'
+x='|||||||||||||||||||||||||||||'
+
+# Echo bar graphs with params from user
+echo "|---5----10---15---20---25--->"
+echo $x | cut -c1-$1
+echo $x | cut -c1-$2
+echo $x | cut -c1-$3
+echo $x | cut -c1-$4
+echo $x | cut -c1-$5
+echo "|---5----10---15---20---25--->"
