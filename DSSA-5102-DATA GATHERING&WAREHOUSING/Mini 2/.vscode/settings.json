@@ -1,0 +1,5 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.pythonPath": "/Users/gregwalsh/opt/anaconda3/envs/DSSAPYTHON/bin/python"
+}
