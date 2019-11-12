@@ -4,9 +4,8 @@ import sqlite3
 import bs4
 import re 
 
-
-response      = requests.get('https://www.imdb.com/chart/top?ref_=ft_250')
-soup          = bs4.BeautifulSoup(response.text, 'html.parser')
+response = requests.get('https://www.imdb.com/chart/top?ref_=ft_250')
+soup = bs4.BeautifulSoup(response.text, 'html.parser')
 
 data = {
     "title":       [],
@@ -14,26 +13,47 @@ data = {
     "imdb_rating": []
 }
 
-movie_title   = soup.find_all('td' , class_ = 'titleColumn')  
-movie_ratings = soup.find_all('td' , class_ = 'ratingColumn imdbRating')
+list = soup.find("tbody", class_="lister-list").find_all("tr")
+for row in list :
+    data['title'].append(row.find(class_="titleColumn").find("a").text)
+    years = row.find(class_="titleColumn").find(class_="secondaryInfo").text
+    years = years.replace('(','')
+    years = years.replace(')','')
+    data['year'].append(years)
+    data['imdb_rating'].append(row.find(class_="imdbRating").find("strong").text)
 
-
-for movie in movie_title:
-    movie = movie.text.replace(' ','')
-    movie = movie.replace('\n','')
-    movie = movie[1 + movie.find("."): ]
-    data['title'].append(re.sub(r'\(\d{4}\)','', movie))
-    data['year'].append(re.findall(r"\((\d+)\)", movie))
-
-for movie in movie_ratings:
-    #print(movie.text)
-    movie = movie.text.replace(' ','')
-    movie = movie.replace('\n','')
-    data['imdb_rating'].append(movie)
+#print(data['title'])
+#print(data['year'])
+#print(data['imdb_rating'])
 
 
 df = pd.DataFrame(data)
-print(df)
+
+db     = sqlite3.connect(":memory:")
+cursor = db.cursor()
+cursor.execute("""
+   CREATE TABLE MOVIES("TITLE" TEXT,
+    "YEAR" INTEGER,
+    "IMDB_RATINGS" REAL
+    )
+""")
+
+for row in df.itertuples():
+    insert_sql_syntax = """
+        INSERT INTO MOVIES(TITLE, YEAR, IMDB_RATINGS) 
+        VALUES (?,?,?)
+    """
+    cursor.execute(insert_sql_syntax, row[1:])
+db.commit()
+
+
+for row in cursor.execute("""
+    SELECT * FROM MOVIES
+"""):
+    print(row)
+
+    
+db.close()
 #print(data['title'])
 #print(data['year'])
 #print(data['imdb_rating'])
