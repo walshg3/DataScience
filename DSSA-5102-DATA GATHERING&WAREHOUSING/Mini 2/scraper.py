@@ -48,6 +48,7 @@ cursor.execute("""
 """)
 
 
+
 ## Cycle through the data in the Pandas Data Frame and add it to a sql database 
 for row in df.itertuples():
     insert_sql_syntax = """
@@ -64,3 +65,4 @@ for row in cursor.execute("""
 """):
     print(row)
 db.close()
+
