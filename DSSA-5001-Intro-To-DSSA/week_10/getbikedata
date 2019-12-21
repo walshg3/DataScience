@@ -1,0 +1,37 @@
+#! /bin/bash
+curl https://www.rideindego.com/about/data/ > bikedata
+grep -E -o 'http.*\.zip' bikedata > urls
+echo on
+readarray -t arr < urls
+for i in "${arr[@]}"
+do
+echo $i
+done
+
+
+### Replace wd with your own
+indegodata=$(ls "/Users/gregwalsh/Github/DataScience /DSSA-5001-Intro-To-DSSA/week_10")
+cat $indegodata > indegocombined.csv
+for file in $indegodata
+do
+    continue
+    ### Clean the Data of " and remove the col's of every file other than one
+    if [ ${file: -4} == ".csv" ]
+    then
+        echo $file
+        sed -i '' 's/\"//g' $file
+        head -n 1 $file
+    fi
+    ### Take one of the more recent datasets and set that as the header in the new csv to be made.
+    ### From there remove the first line (Columns) in each other csv
+    if [ $file == "indego-2019-q2.csv" ]
+    then
+        echo "Found"
+        cat $file > indegocombined.csv
+    else
+        sed -i '' 1d $file
+    fi
+
+    ### Finally cat each csv and append it to a new file
+    cat $file > indegocombined.csv
+done
