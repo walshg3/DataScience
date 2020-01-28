@@ -10,7 +10,7 @@ done
 
 
 ### Replace wd with your own
-indegodata=$(ls "/Users/gregwalsh/Github/DataScience /DSSA-5001-Intro-To-DSSA/week_10")
+indegodata=$(ls "/Users/gregwalsh/Github/DataScience/DSSA-5001-Intro-To-DSSA/week_10")
 cat $indegodata > indegocombined.csv
 for file in $indegodata
 do
