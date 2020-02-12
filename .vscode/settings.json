@@ -1,5 +1,7 @@
 {
     "python.linting.pylintEnabled": true,
-    "python.linting.pep8Enabled": false,
-    "python.linting.enabled": true
+    "python.linting.pycodestyleEnabled": false,
+    "python.linting.enabled": true,
+    "python.dataScience.jupyterServerURI": "local",
+    "python.pythonPath": "/Users/gregwalsh/opt/anaconda3/envs/DSSAPYTHON/bin/python"
 }
