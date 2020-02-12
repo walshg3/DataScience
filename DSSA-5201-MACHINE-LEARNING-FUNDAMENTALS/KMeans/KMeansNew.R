@@ -41,7 +41,7 @@ library(class)
 
 ## From reading online using Kmeans with a data structure in the form of a matrix makes manipulating vectors easier
 KMeansData_Group1 <- as.matrix(read.csv("KMeansData_Group1.csv", header = FALSE)) 
-
+colnames(KMeansData_Group1) <- c("x","y")
 kmeansnew = function(data, K, stop_crit=10e-3){
   ## Init Variables
   # 1. Create k points for starting centroids
@@ -102,7 +102,7 @@ kmeansplotnew <- function(K){
   res1$centroids$isCentroid=T
   #names(res1$data) <- names(res1$centroids) 
   data_plot1=rbind(res1$centroids,res1$data)
-  ggplot(data_plot1,aes(x=V1,y=V2,color=as.factor(cluster),size=isCentroid,alpha=isCentroid))+geom_point()
+  ggplot(data_plot1,aes(x=x,y=y,color=as.factor(cluster),size=isCentroid,alpha=isCentroid))+geom_point()
 }
 
 #K <- 6
@@ -119,8 +119,8 @@ df <- data.frame()
 for (i in 1:K) {
   for (j in 1:nrow(kmdata$data)) {
     if(kmdata$data$cluster[j] == kmdata$centroids$cluster[i]){
-      df <- data.frame(kmdata$data$V1[j],kmdata$centroids$V1[i], kmdata$data$V2[j],kmdata$centroids$V2[i] )
-      wss = wss + (kmdata$data$V1[j] - kmdata$centroids$V1[i])^2 + (kmdata$data$V2[j] - kmdata$centroids$V2[i])^2
+      df <- data.frame(kmdata$data$x[j],kmdata$centroids$x[i], kmdata$data$y[j],kmdata$centroids$y[i] )
+      wss = wss + (kmdata$data$x[j] - kmdata$centroids$x[i])^2 + (kmdata$data$y[j] - kmdata$centroids$y[i])^2
     }
   }
 }
