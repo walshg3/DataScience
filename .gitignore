@@ -1,4 +1,4 @@
-*.vscode
-*.csv
 *.json
 *.DS_Store
+*.vscode
+*.csv
