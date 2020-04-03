@@ -76,7 +76,8 @@ ROC <- function(train, test) {
 
 ### Data Preparation ###
 # The provided training data
-data1 <- read.csv(".csv", header = TRUE)
+setwd("C:/Users/Gregwalsh96/github/DataScience/DSSA-5201-MACHINE-LEARNING-FUNDAMENTALS/LogisticRegression")
+data1 <- read.csv("LogisticData_1.csv", header = TRUE)
 
 library(caTools) # To split the data - you can use any technique to split the data if you prefer
 set.seed(88)
