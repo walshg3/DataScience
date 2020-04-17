@@ -86,7 +86,7 @@ biases_3 = np.random.randn(2,number_of_cases)
 #print('Features : ',features)
 #print(' Targets : ', targets_observed)
 #print(' Targets predicted : ', Targets_Predicted)
-learning_rate = 0.001
+learning_rate = 0.1
     
 # Find slope functions using autograd
 

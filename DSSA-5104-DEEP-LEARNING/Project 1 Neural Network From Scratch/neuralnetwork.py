@@ -156,9 +156,9 @@ print('Number of Cases:', number_of_cases)
 
 # Set initial weights and biases
 # use a seed so others can replicate results
-losses = []
-
 # np.random.seed(8675)
+
+losses = []
 
 weights_1 = np.random.rand(4, 5)
 biases_1 = np.random.rand(4, number_of_cases)
@@ -170,7 +170,7 @@ weights_3 = np.random.rand(2, 3)
 biases_3 = np.random.rand(2, number_of_cases)
 
 # Set our learning rate
-lr = 0.001
+lr = 0.00001
 
 # find slope
 # If you have created a loss function this way then computing the functions
@@ -222,15 +222,17 @@ for epoch in range(epochs):
 
     # used for testing purposes. If you want to see how the
     # loss backpropagate is calculating a lower gradient run this
-    # print(epoch, loss(features, weights_1, biases_1, weights_2, biases_2,
-    #                   weights_3, biases_3, targets_observed, select))
+    print(epoch, loss(features, weights_1, biases_1, weights_2, biases_2,
+                      weights_3, biases_3, targets_observed, select))
 
 
 Targets_Predicted = feed_forward(features, weights_1, biases_1, weights_2,
                                  biases_2, weights_3, biases_3, select)
 
 
-
+'''
+Code to show line graph of the Epochs vs Observed
+'''
 
 print('Features : \n', features)
 print(' Targets : \n', targets_observed)
@@ -238,12 +240,11 @@ print(' Targets predicted : \n', Targets_Predicted)
 
 # plt.semilogy(losses)  # make a plot with log scale on the y axis
 plt.plot(losses)
-plt.text(3000, 3, 'The NNs performance at learning rate 0.001  ')  # Add text on plot
-plt.xlabel('Number of epochs')  # Add label name
-plt.title('Learning Curve using Sigmoid Activation Function ')  # Add title name
-plt.ylabel('Target Values Observed')  # Add label name
-plt.show()  # Plot graph
-plt.savefig('lr001c.png')  # Save figure
+plt.xlabel('Epochs')  # Add label name
+plt.title('Learning Curve using Combo Activation Function LR 0.00001')
+plt.ylabel('Observed')
+plt.show()
+plt.savefig('save.png')
 
 
 '''
