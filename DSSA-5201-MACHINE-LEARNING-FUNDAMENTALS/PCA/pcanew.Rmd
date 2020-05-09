@@ -1,0 +1,205 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library("FactoMineR")
+library("factoextra")
+library(ggcorrplot)
+library(missMDA)
+```
+
+```{r}
+setwd("C:/Users/Gregwalsh96/github/DataScience/DSSA-5201-MACHINE-LEARNING-FUNDAMENTALS/PCA")
+getwd()
+```
+
+```{r}
+fifa <- read.csv("data.csv", sep = ",")
+str(fifa)
+```
+#### The fifa data set above has 17981 obs. of  76 variables. That means we have data about 17981 players in all 76 variables which are players skills related.
+
+
+```{r}
+colna <- data.frame(colSums(is.na(fifa)))
+colnames(colna) <- c("number_of_na") 
+colna
+```
+#### The fifa csv file as many NaN's. The column wise count of NaN's is stored in the dataframe"colna" below. There are 76 columns in "fifa"" dataframe which have NaN's.  
+
+```{r}
+names(fifa)[sapply(fifa, anyNA)]
+```
+#### All the above variables have Na's. As we know
+#### Principal component analysis can be done on numerical continuous variables only.
+#### Thus club variable which is a factor having Na will not be included. but rest all variables are continuous numeric variables, which we may need for PCA.
+
+
+#### Since i have limited knowledge about football framing the question without having the understanding about the subject is difficult for me, so I will be following this web link as my reference.
+
+####  https://blog.exploratory.io/using-pca-to-see-which-countries-have-better-players-for-world-cup-games-a72f91698b95
+
+```{r}
+library(plyr) 
+count(fifa, c("Nationality")) %>% arrange(desc(freq))
+```
+#### England has the higest number of players following germany, spain,france and argentina coming in top 5
+```{r}
+England <- filter(fifa, Nationality %in% c("England")) %>% select(Nationality, Position) %>% count("Position") %>% mutate(Nationality="England")
+Germany <- filter(fifa, Nationality %in% c("Germany")) %>% select(Nationality, Position) %>% count("Position")%>% mutate(Nationality="Germany")
+Spain <- filter(fifa, Nationality %in% c("Spain")) %>% select(Nationality, Position) %>% count("Position")%>% mutate(Nationality="Spain")
+France <- filter(fifa, Nationality %in% c("France")) %>% select(Nationality, Position) %>% count("Position")%>% mutate(Nationality="France")
+Argentina <- filter(fifa, Nationality %in% c("Argentina")) %>% select(Nationality, Position) %>% count("Position")%>% mutate(Nationality="Argentina")
+df1 <- rbind(England, Germany, Spain, France, Argentina)
+plot <-ggplot(df1, aes(Nationality, freq))
+plot +geom_bar(stat = "identity", aes(fill = Position), position = "dodge")
+```
+#### The plot above shows the distribution of players by positions. To understand about relationship with  skills of players a correlation matrix is a good idea. 
+```{r}
+correl <- cor(fifa[,55:83], use = "complete.obs")
+ggcorrplot(correl)
+```
+#### creating a correlation matrix of the variables 12 to 45, which have the skills of each player.As I have found this dataset has Na's, i am going to use only complete observation for the correlation graph.The plot when opened in a seperate window is big and we can clearly see that the GK(goal keeping) skills of players are negatively correlated with all the other skills, that means players with high GK skills have lower acceleration and so on. We can also observe that strength skill is negatively correlated to Acceleration, agility and balance.
+
+```{r}
+ggcorrplot_clustered <- ggcorrplot(correl, hc.order = TRUE, type = "lower")
+ggcorrplot_clustered
+```
+#### This is hierarchical clustering on the correlation matrix and this produces same information as the plot before. This plot is much easier to view and understand.
+
+#### The fifa dataset has Na's in the GK.positioning variable, we cannot skip the missing values since it is a risky option that leads to unreliable PCA model. To impute the missing values, using missMDA package.
+```{r}
+fifa_ncp <- estim_ncpPCA(fifa[,55:83])
+```
+#### 'estim_ncpPCA()' is necessary for determining the optimum number of PC's, which is 5 as shown below.
+```{r}
+fifa_ncp$ncp
+```
+
+```{r}
+ complete_fifa <- imputePCA(fifa[,55:83], ncp = fifa_ncp$ncp, scale = TRUE)
+```
+#### 'imputePCA()' outputs the dataset without Na's, here ncp is the number of principal components
+#### scale if TRUE, the data are scaled to unit variance before the analysis. This standardization to the same scale avoids some variables to become dominant just because of their large measurement units. It makes variables comparable.
+
+```{r}
+fifanew <- complete_fifa$completeObs
+head(fifanew)
+```
+#### fifanew is the dataset which has imputed Na values in GK.positioning variable.  The resulting "fifanew" will be used as an argument for PCA(). 
+```{r}
+fifaold <- fifa %>% select(Nationality,Position)
+fifa1 <- cbind(fifaold,fifanew)
+fifa1
+```
+#### I am combining some of the categorical variables from original "fifa" data set with "fifa1".I am unaware of future usage of these categorical variables in principalcomponent analysis, but for now i will be keeping them. Idea is to use them to plot ellipsoids
+
+```{r}
+pca_output <- PCA(fifa1, quali.sup=1:2, graph = FALSE)
+```
+
+#### By default, the function PCA() [in FactoMineR], standardizes the data automatically during the PCA, when scale =TRUE ; so we don't need do this transformation before the PCA.
+#### However when imputing we have already scaled the data to be standardized
+#### By default, PCA() generates 2 graphs and extracts the first 5 PCs.we can for instance use ncp=3 argument in PCA() to manually set the number of dimensions to 3.
+#### To ignore some of the original variables or individuals in building a PCA model by supplying PCA() with the ind.sup argument for supplementary individuals and quanti.sup or quali.sup for quantitative and qualitative variables respectively. Supplementary individuals and variables are rows and variables of the original data ignored while building the model. 
+#### since "fifa1" have 2 variables which are categorical i have used code to supress it, i have also supressed the plots and will be plotting same later.
+
+```{r}
+pca_output
+```
+
+#### Above  are all the components under PCA
+```{r}
+get_eigenvalue(pca_output)
+```
+#### the eigenvalues measure the amount of variation retained by each principal component. Eigenvalues are large for the first PCs and small for the subsequent PCs.
+#### The sum of all the eigenvalues give a total variance of 34.
+#### The proportion of variation explained by each eigenvalue is given in the second column. For example, 18.80 divided by 34 equals 0.5531, or, about 55.31% of the variation is explained by this first eigenvalue. 
+#### The cumulative percentage explained is obtained by adding the successive proportions of variation explained to obtain the running total. For instance, 55.31% plus 14.84% equals 70.15%, and so forth.
+#### An eigenvalue > 1 indicates that PCs account for more variance than others
+
+```{r}
+fviz_screeplot(pca_output, ncp = 5)
+```
+#### the screeplot above confirms that PC1/Dim1 contributes approximately 55% of variance and pc2 contibutes 14%
+
+```{r}
+fviz_pca_var(pca_output,col.var="cos2", select.var = list(cos2 = 0.7), gradient.cols = c("blue", "yellow", "red"), repel = TRUE)
+```
+#### Create a factor map using fviz_pca_var() for the variables with cos2 higher than 0.7.
+#### cos2 shows how accurate the representation of your variables or individuals on the PC plane is.
+#### To create the individuals/rows factor map using fviz_pca_ind(), code:"fviz_pca_ind(pca_output, select.ind = list(cos2 = 0.7), repel = TRUE)"
+#### The distance between variables and the origin measures the quality of the variables on the factor map. Variables that are away from the origin are well represented on the factor map
+#### Positively correlated variables are grouped together away from negative correlated ones, in this case it is GK vs rest all.
+
+```{r}
+fviz_contrib(pca_output, choice = "var", axes = 1, top = 5)
+```
+#### barplot for the variables with the highest contributions to the 1st PC
+#### The red dashed line on the bar graph indicates the expected average contribution
+
+```{r}
+fviz_contrib(pca_output, choice = "var", axes = 2, top = 5)
+```
+#### barplot for the variables with the highest contributions to the 2nd PC.
+#### the dotted line here much below suggesting the contibrution of these variables is more than average.
+
+```{r}
+fviz_pca_var(pca_output, select.var = list(contrib = 5), repel = TRUE)
+```
+#### contributions of the variables essentially signify their importance for the construction of a given principal component.
+#### factor map for the top 5 variables with the highest contributions.
+#### Ball.control and Dribbling are from PC1(Dim1) and rest are from PC2(Dim2) 
+
+```{r}
+fviz_pca_biplot(pca_output)
+```
+
+#### biplots are graphs that provide a compact way of summarizing the relationships between individual and variables,
+#### In this plot we can see all the variables associated with Goal Keeping have GK individuals clustered around them at left side of origin and rest all at the right with their variables.
+
+
+```{r}
+fviz_pca_biplot(pca_output, geom.ind = "point", habillage = fifa1$Position, addEllipses = TRUE)
+```
+#### Creating ellipsoids based on the levels of the supplementary variable "Position".
+#### Creating ellipsoids based on the Nationality was not possible
+```{r}
+fifa
+thirtyeight <- fifa %>% filter(Age >= 38) %>% select(Position,ShortPassing,HeadingAccuracy,BallControl,GKKicking,GKDiving,GKReflexes)
+str(thirtyeight)
+```
+#### As in the first correlation matrix we saw that GK variables were negatively correlated with rest of the variables, i choosed short.passing,heading.accuracy,ball.control which are highly negatively correlated with GK variables to further analyZe
+#### i am using a subset of data of players above age 38. 
+```{r}   
+corr_38 <- cor(thirtyeight[2:7], use = "complete.obs")
+ggcorrplot_clus <- ggcorrplot(corr_38, hc.order = TRUE, type = "lower")
+ggcorrplot_clus
+```
+
+```{r}
+pca_f1 <- PCA(thirtyeight,quali.sup=1, scale.unit = TRUE, graph = TRUE)
+```
+#### conducting principal components analysis on subset of data
+#### In the first plot, GK individuals 1 to 72 are plotted at right side and other skills individual at left. 
+#### PC1 has the variance of 90.98%, alone PC1 is more than enough
+
+```{r}
+fviz_eig(pca_f1, addlabels = TRUE, ncp = 3)
+```
+
+
+```{r}
+fviz_pca_biplot(pca_f1, geom.ind = "point", habillage = thirtyeight$Position, addEllipses = TRUE)
+```
+#### the variable "Position" is used as grouping variable.
+
+
+
+#### references:
+#### http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/112-pca-principal-component-analysis-essentials/
+#### https://www.datacamp.com/courses/dimensionality-reduction-in-r
+#### https://www.youtube.com/watch?v=FgakZw6K1QQ
