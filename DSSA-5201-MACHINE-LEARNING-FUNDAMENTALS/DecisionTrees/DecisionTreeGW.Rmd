@@ -1,0 +1,162 @@
+---
+title: "Titanic Decision GW"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+I recently watched the Movie Titanic and it got me thinking about a few things.
+Luckily Kaggle has the Titanic Dataset available online as a competition. 
+I will attempt to create a Decision Tree with the Titanic Dataset 
+and implement some Random Forest Predictions.
+
+We all know Women and Children were first to be saved but I wonder if other 
+Factors went into the percentage of people that lived.
+I also wanted to see if using Random Forests I can make an accuracte Decision
+Tree that can predict if someone would live based off features. 
+https://www.kaggle.com/c/titanic/overview
+
+
+```{r}
+# Import Statments 
+library(tidyverse)
+#install.packages("rpart")
+library(rpart)
+#install.packages("rpart.plot")
+library(rpart.plot) 
+#install.packages("randomForest")
+library(randomForest)
+```
+
+```{r}
+# Kaggle's Dataset is great because it splits our testing and training data.
+# Our Training Set
+train <- read.csv("train.csv")
+# Our Testing Set
+test <- read.csv("test.csv")
+# The actual survived for model comparison 
+actual <- read.csv("gender_submission.csv")
+```
+
+
+```{r}
+# We want to add / remove any values in the Survived column of test data so that
+# The model predicts them. 
+test$Survived <- NA
+```
+
+```{r}
+# Lets take a look at our data. 
+summary(train)
+```
+
+
+```{r}
+# our col names. This will be used for predicting based off if the data is 
+# valuable to survival
+colnames(train)
+```
+
+```{r}
+# Lets make a table that sees if females actually had a better survival rate
+prop.table(table(train$Sex, train$Survived),1)
+```
+Wow if you were a female you had a 74% chance of surviving and if you were a
+male you had an 81% chance at death! 
+
+
+```{r}
+# Recursive Partitioning and Regression Trees using the CART decision tree 
+# algorithm. We are comparing Survived to the Pclass Sex Age Sibsp Parch Fare
+# and Embarked on the training dataset. The method is class here because we 
+# want to look at a survival rate and get a 1 - 0 of likley hood to survive
+fitrpart <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked,
+               data=train,
+               method="class")
+```
+```{r}
+# Using rpart plot we can make a pretty decision tree graph 
+rpart.plot(fitrpart)
+```
+
+The tree shows us some percentages about that data that at first we would not 
+care to look at. For example kids younger that 6.5 had a better chance of 
+survival. The sibsp variable which is '# of siblings / spouses aboard the 
+Titanic' and embarked which is 'Port of Embarkation' both had some deciding 
+factors of survival. This is interesting because I normally would not have 
+looked into that at first glance of the data. Pclass Fare Sex and Age all were 
+Commonly known for increasing the rate of survival. Children and women we more 
+likly to live. 
+
+
+```{r}
+# Prediction for kaggle score 
+Predictionrpart <- predict(fitrpart, test, type = "class")
+submitrpart <- data.frame(PassengerId = test$PassengerId, Survived = Predictionrpart, Actual = actual$Survived)
+sum(submitrpart$Survived == submitrpart$Actual, na.rm = T) / nrow(submitrpart) *100
+```
+rpart creates a model with 91% accuracy when predicting survival rate. 
+
+
+```{r}
+# The next thing I wanted to try is creating a Randmom forest. The only downside
+# with randomForest is NA Values break it hard. So in order to fix the NA values
+# we have im using na.action = na.roughfix. This will allow the randomForest 
+# to run without breaking however if I had more time I would manually combine 
+# as many feature classes as I could and also get the mean value to replace with
+# NA's 
+# set seed for reproducible results 
+# ntree agrument will spcify how many trees to grow
+# importance will inspect variable importance 
+# as.factor is needed since we force the model to predict our classification by 
+# temporarily changing our target variable to a factor 
+# with only two levels using 0 or 1 
+set.seed(8675)
+fitRF <- randomForest(as.factor(Survived) ~  Pclass + Sex + Age + SibSp + Parch + Fare + Embarked,
+                      na.action = na.roughfix,
+                      data=train, 
+                      importance=TRUE, 
+                      ntree=1500)
+# Was getting a weird object reference error when trying to predict
+# Stack overflow has this as a solution. Not sure if it will mess with the 
+# accuracy. 
+
+testnew <- rbind(train[1,] , test)
+testnew <- testnew[-1,]
+# We can now predict 
+PredictionRF <- predict(fitRF, testnew, type = "class")
+PredictionRF
+```
+
+
+```{r}
+fitRF
+```
+
+
+```{r}
+# Prediction for kaggle score 
+submit <- data.frame(PassengerId = testnew$PassengerId, Survived = PredictionRF)
+```
+
+
+```{r}
+# For the purpose of this notebook here is the accuracy of the model 
+# we create a data frame with the Passenger ID, our predicted Survived rate
+# and the actual survival rate of the titanic
+# from there we can do a comparison of each row sum and divide the answer by the
+# total rows. Multiply by 100 to get a percentage. 
+t1 <- data.frame(PassengerId = test$PassengerId, Survived = PredictionRF, Actual = actual$Survived)
+sum(t1$Survived == t1$Actual, na.rm = T) / nrow(t1) *100
+```
+
+69% Accuracy using Random Forests. This could be since there are a lot of NA 
+Values appearing in the prediction using the RF Model. Even with the quick fix
+on the NA's using na.roughfix. I believe proper Feature Engineering would help 
+the model accuracy. Removing cols that we dont need, combining data, using other
+decision tree algorithms can all be a factor in imporoving the models accuracy.
+
+
+
