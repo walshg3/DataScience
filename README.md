@@ -1,3 +1,4 @@
+![Alt](https://stockton.edu/graduate/images/DataScience_StatAnalytics.jpg "Stockton Logo")
 
 ### Work for the [Data Science Masters Program](https://stockton.edu/graduate/data-science_strategic-analytics.html) at Stockton University 2019 - 2020
 
